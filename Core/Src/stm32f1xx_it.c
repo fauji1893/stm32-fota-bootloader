@@ -195,7 +195,7 @@ void SysTick_Handler(void)
   m95.timeout++;
 
   if(updateMode){
-	  if(blinkTime2++>1000){
+	  if(blinkTime2++>700){
 		  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
 		  blinkTime2 = 0;
 	  }

@@ -83,8 +83,14 @@ uint32_t M95_FTPFileSize(uint8_t* fileName){
 		while(HAL_GetTick() - timeout < 10000){
 			if(m95.AtCommand.status == Module_Idle){
 				if(strstr(m95.UsartRxBuffer[m95.RxBufferQueue-1], "+QFTPSIZE:")){
-					size = StrToInt(m95.UsartRxBuffer[m95.RxBufferQueue-1]);
-					break;
+					if(strchr(m95.UsartRxBuffer[m95.RxBufferQueue-1],'-')==NULL){
+						size = StrToInt(m95.UsartRxBuffer[m95.RxBufferQueue-1]);
+						break;
+					}
+					else{
+						break;
+					}
+
 				}
 			}
 		}
@@ -131,6 +137,8 @@ bool M95_Init(void) {
 	uint32_t timeout = HAL_GetTick();
 
 	m95.FTP.DataMode=false;
+	m95.GPRSSignal = 0;
+	m95.ready = 0;
 	m95.AtCommand.status = Module_Idle;
 
 	HAL_Delay(750);

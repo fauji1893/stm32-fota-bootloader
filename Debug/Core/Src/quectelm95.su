@@ -5,8 +5,8 @@ quectelm95.c:17:10:StrToInt	40	static
 quectelm95.c:34:6:M95_FTPConfig	128	static
 quectelm95.c:48:6:M95_FTPOpen	64	static
 quectelm95.c:72:10:M95_FTPFileSize	128	static
-quectelm95.c:95:6:M95_FTPGetFile	64	static
-quectelm95.c:116:6:M95_SMSSend	64	static
-quectelm95.c:129:6:M95_Init	16	static
-quectelm95.c:160:9:M95_SendATCommand	24	static
-quectelm95.c:203:6:M95_RxCallBack	16	static
+quectelm95.c:101:6:M95_FTPGetFile	64	static
+quectelm95.c:122:6:M95_SMSSend	64	static
+quectelm95.c:135:6:M95_Init	16	static
+quectelm95.c:168:9:M95_SendATCommand	24	static
+quectelm95.c:211:6:M95_RxCallBack	16	static

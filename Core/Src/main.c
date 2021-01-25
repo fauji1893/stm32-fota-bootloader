@@ -68,7 +68,7 @@ uint8_t ftpUser[12] = "dev";
 uint8_t ftpPass[12] = "sewul2912";
 uint32_t indicatorValue = 0x000000;
 uint8_t status = 1;
-uint8_t smsMessage[50] = "Firmware update success\n";
+uint8_t smsMessage[50] = "Firmware update success";
 uint8_t updateMode = 0;
 
 /* USER CODE END PV */
@@ -122,7 +122,7 @@ int main(void)
 //	LL_USART_EnableIT_RXNE(USART1);
 
 	/* check for update */
-	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3)==GPIO_PIN_RESET || *(__IO uint32_t*) UPDATE_INDICATOR == 0xABABABAB){
+	if(*(__IO uint32_t*) UPDATE_INDICATOR == 0xABABABAB){
 		updateMode = 1;
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_SET);
@@ -150,7 +150,7 @@ int main(void)
 
 		/* Wait untill internet connection is ready */
 		timeout = HAL_GetTick();
-		while (HAL_GetTick() - timeout < 60000 * 10) {
+		while (HAL_GetTick() - timeout < 60000 * 5) {
 			if (m95.GPRSSignal)
 				break;
 		}
@@ -183,12 +183,14 @@ int main(void)
 					/* Download new firmware and write to APPLICATION_1 */
 					if (!DownloadFile(fileName, m95.FTP.FileSize + 4096*totalFile)) {
 						HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
+						m95.FTP.DataMode = 0;
+						m95.AtCommand.status = Module_Idle;
 						FLASH_If_Erase(APPLICATION_1, APPLICATION_2);
 
 						/* Copy old firmware (APPLICATION_1) to APPLICATION_2 */
 						FLASH_If_Write(APPLICATION_1, (uint32_t*) APPLICATION_2,
 								USER_FLASH_SIZE / 4);
-						strcpy(smsMessage, "Firmware update failed\nERROR:1\n");
+						strcpy(smsMessage, "Firmware update failed\nERROR:1");
 
 						status = 0;
 
@@ -196,22 +198,31 @@ int main(void)
 
 //					HAL_NVIC_SystemReset();
 				} else {
+					m95.FTP.DataMode = 0;
 					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
-					strcpy(smsMessage, "Firmware update failed\nERROR:2\n");
+					strcpy(smsMessage, "Firmware update failed\nERROR:2");
 					status = 0;
 				}
 
 			}
+			else{
+				m95.FTP.DataMode = 0;
+				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
+				status = 0;
+				strcpy(smsMessage, "Firmware update failed\nERROR:3");
+			}
 		} else {
+			m95.FTP.DataMode = 0;
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
 			status = 0;
-			strcpy(smsMessage, "Firmware update failed\nERROR:3\n");
+			strcpy(smsMessage, "Firmware update failed\nERROR:4");
 
 		}
 
 		printf(smsMessage);
+		printf("\r\n");
 		M95_SMSSend(phoneNum, smsMessage);
-		HAL_Delay(100);
+		HAL_Delay(500);
 	}
 
 	/* Run application */
